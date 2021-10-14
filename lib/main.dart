@@ -55,14 +55,19 @@ class _TodosPageState extends State<TodosPage> {
   }
 
   Future<void> _initializeApp() async {
-    // configure Amplify
-    await _configureAmplify();
 
-    // after configuring Amplify, update loading ui state to loaded state
-    setState(() {
-      _isLoading = false;
-    });
-  }
+  // configure Amplify
+  await _configureAmplify();
+
+  // fetch Todo entries from DataStore
+  await _fetchTodos();
+
+  // after both configuring Amplify and fetching Todo entries, update loading
+  // ui state to loaded state
+  setState(() {
+    _isLoading = false;
+  });
+}
 
   Future<void> _configureAmplify() async {
     try {
@@ -81,8 +86,20 @@ class _TodosPageState extends State<TodosPage> {
   }
 
   Future<void> _fetchTodos() async {
-    // to be filled in a later step
+  try {
+
+    // query for all Todo entries by passing the Todo classType to
+    // Amplify.DataStore.query()
+    List<Todo> updatedTodos = await Amplify.DataStore.query(Todo.classType);
+
+    // update the ui state to reflect fetched todos
+    setState(() {
+      _todos = updatedTodos;
+    });
+  } catch (e) {
+    print('An error occurred while querying Todos: $e');
   }
+}
 
   @override
   Widget build(BuildContext context) {
