@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'amplifyconfiguration.dart';
 import 'models/ModelProvider.dart';
 import 'models/Todo.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -54,33 +55,30 @@ class _TodosPageState extends State<TodosPage> {
   }
 
   Future<void> _initializeApp() async {
+    // configure Amplify
+    await _configureAmplify();
 
-  // configure Amplify
-  await _configureAmplify();
-
-  // after configuring Amplify, update loading ui state to loaded state
-  setState(() {
-    _isLoading = false;
-  });
-}
+    // after configuring Amplify, update loading ui state to loaded state
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   Future<void> _configureAmplify() async {
-  try {
+    try {
+      // add Amplify plugins
+      await Amplify.addPlugins([_dataStorePlugin]);
 
-    // add Amplify plugins
-    await Amplify.addPlugins([_dataStorePlugin]);
-
-    // configure Amplify
-    //
-    // note that Amplify cannot be configured more than once!
-    await Amplify.configure(amplifyconfig);
-  } catch (e) {
-
-    // error handling can be improved for sure!
-    // but this will be sufficient for the purposes of this tutorial
-    print('An error occurred while configuring Amplify: $e');
+      // configure Amplify
+      //
+      // note that Amplify cannot be configured more than once!
+      await Amplify.configure(amplifyconfig);
+    } catch (e) {
+      // error handling can be improved for sure!
+      // but this will be sufficient for the purposes of this tutorial
+      print('An error occurred while configuring Amplify: $e');
+    }
   }
-}
 
   Future<void> _fetchTodos() async {
     // to be filled in a later step
@@ -92,9 +90,7 @@ class _TodosPageState extends State<TodosPage> {
       appBar: AppBar(
         title: Text('My Todo List'),
       ),
-      body: _isLoading
-          ? Center(child: CircularProgressIndicator())
-          : TodosList(todos: _todos),
+      body: _isLoading ? Center(child: CircularProgressIndicator()) : TodosList(todos: _todos),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -177,7 +173,24 @@ class _AddTodoFormState extends State<AddTodoForm> {
   final _descriptionController = TextEditingController();
 
   Future<void> _saveTodo() async {
-    // to be filled in a later step
+    // get the current text field contents
+    String name = _nameController.text;
+    String description = _descriptionController.text;
+
+    // create a new Todo from the form values
+    // `isComplete` is also required, but should start false in a new Todo
+    Todo newTodo = Todo(name: name, description: description.isNotEmpty ? description : null, isComplete: false);
+
+    try {
+      // to write data to DataStore, we simply pass an instance of a model to
+      // Amplify.DataStore.save()
+      await Amplify.DataStore.save(newTodo);
+
+      // after creating a new Todo, close the form
+      Navigator.of(context).pop();
+    } catch (e) {
+      print('An error occurred while saving Todo: $e');
+    }
   }
 
   @override
