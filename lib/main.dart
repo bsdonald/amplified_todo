@@ -32,6 +32,8 @@ class TodosPage extends StatefulWidget {
 }
 
 class _TodosPageState extends State<TodosPage> {
+  // subscription to Todo model update events - to be initialized at runtime
+  late StreamSubscription _subscription;
   // loading ui state - initially set to a loading state
   bool _isLoading = true;
 
@@ -50,24 +52,33 @@ class _TodosPageState extends State<TodosPage> {
 
   @override
   void dispose() {
-    // to be filled in a later step
+    // cancel the subscription when the state is removed from the tree
+    _subscription.cancel();
     super.dispose();
   }
 
   Future<void> _initializeApp() async {
+    // configure Amplify
+    await _configureAmplify();
 
-  // configure Amplify
-  await _configureAmplify();
+    // listen for updates to Todo entries by passing the Todo classType to
+    // Amplify.DataStore.observe() and when an update event occurs, fetch the
+    // todo list
+    //
+    // note this strategy may not scale well with larger number of entries
+    _subscription = Amplify.DataStore.observe(Todo.classType).listen((event) {
+      _fetchTodos();
+    });
 
-  // fetch Todo entries from DataStore
-  await _fetchTodos();
+    // fetch Todo entries from DataStore
+    await _fetchTodos();
 
-  // after both configuring Amplify and fetching Todo entries, update loading
-  // ui state to loaded state
-  setState(() {
-    _isLoading = false;
-  });
-}
+    // after both configuring Amplify and fetching Todo entries, update loading
+    // ui state to loaded state
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   Future<void> _configureAmplify() async {
     try {
@@ -86,20 +97,19 @@ class _TodosPageState extends State<TodosPage> {
   }
 
   Future<void> _fetchTodos() async {
-  try {
+    try {
+      // query for all Todo entries by passing the Todo classType to
+      // Amplify.DataStore.query()
+      List<Todo> updatedTodos = await Amplify.DataStore.query(Todo.classType);
 
-    // query for all Todo entries by passing the Todo classType to
-    // Amplify.DataStore.query()
-    List<Todo> updatedTodos = await Amplify.DataStore.query(Todo.classType);
-
-    // update the ui state to reflect fetched todos
-    setState(() {
-      _todos = updatedTodos;
-    });
-  } catch (e) {
-    print('An error occurred while querying Todos: $e');
+      // update the ui state to reflect fetched todos
+      setState(() {
+        _todos = updatedTodos;
+      });
+    } catch (e) {
+      print('An error occurred while querying Todos: $e');
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
