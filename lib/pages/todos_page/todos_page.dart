@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:amplified_todo/amplifyconfiguration.dart';
-import 'package:amplified_todo/main.dart';
 import 'package:amplified_todo/models/ModelProvider.dart';
+import 'package:amplified_todo/pages/add_todo_form/add_todo_form.dart';
+import 'package:amplified_todo/pages/todos_page/widgets/todos_page_body.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_datastore/amplify_datastore.dart';
@@ -69,8 +70,8 @@ class _TodosPageState extends State<TodosPage> {
 
   Future<void> _configureAmplify() async {
     try {
-        // add Amplify plugins
-    await Amplify.addPlugins([_dataStorePlugin, _apiPlugin, _authPlugin]);
+      // add Amplify plugins
+      await Amplify.addPlugins([_dataStorePlugin, _apiPlugin, _authPlugin]);
 
       // configure Amplify
       //
@@ -84,7 +85,6 @@ class _TodosPageState extends State<TodosPage> {
   }
 
   Future<void> _fetchTodos() async {
-  
     try {
       // query for all Todo entries by passing the Todo classType to
       // Amplify.DataStore.query()
@@ -105,7 +105,7 @@ class _TodosPageState extends State<TodosPage> {
       appBar: AppBar(
         title: Text('My Todo List'),
       ),
-      body: _isLoading ? Center(child: CircularProgressIndicator()) : TodosList(todos: _todos),
+      body: TodosPageBody(isLoading: _isLoading, todos: _todos),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
