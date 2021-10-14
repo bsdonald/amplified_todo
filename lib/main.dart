@@ -1,15 +1,16 @@
 // dart async library we will refer to when setting up real time updates
 import 'dart:async';
-// flutter and ui libraries
-import 'package:flutter/material.dart';
+
+import 'package:amplify_datastore/amplify_datastore.dart';
 // amplify packages we will need to use
 import 'package:amplify_flutter/amplify.dart';
-import 'package:amplify_datastore/amplify_datastore.dart';
+// flutter and ui libraries
+import 'package:flutter/material.dart';
+
 // amplify configuration and models that should have been generated for you
 import 'amplifyconfiguration.dart';
 import 'models/ModelProvider.dart';
 import 'models/Todo.dart';
-
 void main() {
   runApp(MyApp());
 }
@@ -30,9 +31,19 @@ class TodosPage extends StatefulWidget {
 }
 
 class _TodosPageState extends State<TodosPage> {
+  // loading ui state - initially set to a loading state
+  bool _isLoading = true;
+
+  // list of Todos - initially empty
+  List<Todo> _todos = [];
+
+  // amplify plugins
+  final AmplifyDataStore _dataStorePlugin = AmplifyDataStore(modelProvider: ModelProvider.instance);
   @override
   void initState() {
-    // to be filled in a later step
+    // kick off app initialization
+    _initializeApp();
+
     super.initState();
   }
 
@@ -43,12 +54,33 @@ class _TodosPageState extends State<TodosPage> {
   }
 
   Future<void> _initializeApp() async {
-    // to be filled in a later step
-  }
+
+  // configure Amplify
+  await _configureAmplify();
+
+  // after configuring Amplify, update loading ui state to loaded state
+  setState(() {
+    _isLoading = false;
+  });
+}
 
   Future<void> _configureAmplify() async {
-    // to be filled in a later step
+  try {
+
+    // add Amplify plugins
+    await Amplify.addPlugins([_dataStorePlugin]);
+
+    // configure Amplify
+    //
+    // note that Amplify cannot be configured more than once!
+    await Amplify.configure(amplifyconfig);
+  } catch (e) {
+
+    // error handling can be improved for sure!
+    // but this will be sufficient for the purposes of this tutorial
+    print('An error occurred while configuring Amplify: $e');
   }
+}
 
   Future<void> _fetchTodos() async {
     // to be filled in a later step
@@ -60,10 +92,9 @@ class _TodosPageState extends State<TodosPage> {
       appBar: AppBar(
         title: Text('My Todo List'),
       ),
-      body: Center(child: CircularProgressIndicator()),
-      // body: _isLoading
-      //     ? Center(child: CircularProgressIndicator())
-      //     : TodosList(todos: _todos),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : TodosList(todos: _todos),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           Navigator.push(
@@ -88,11 +119,7 @@ class TodosList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return todos.length >= 1
-        ? ListView(
-            padding: EdgeInsets.all(8),
-            children: todos.map((todo) => TodoItem(todo: todo)).toList())
-        : Center(child: Text('Tap button below to add a todo!'));
+    return todos.length >= 1 ? ListView(padding: EdgeInsets.all(8), children: todos.map((todo) => TodoItem(todo: todo)).toList()) : Center(child: Text('Tap button below to add a todo!'));
   }
 }
 
@@ -127,18 +154,12 @@ class TodoItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(todo.name,
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Text(todo.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                   Text(todo.description ?? 'No description'),
                 ],
               ),
             ),
-            Icon(
-                todo.isComplete
-                    ? Icons.check_box
-                    : Icons.check_box_outline_blank,
-                size: iconSize),
+            Icon(todo.isComplete ? Icons.check_box : Icons.check_box_outline_blank, size: iconSize),
           ]),
         ),
       ),
@@ -171,13 +192,8 @@ class _AddTodoFormState extends State<AddTodoForm> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              TextFormField(
-                  controller: _nameController,
-                  decoration: InputDecoration(filled: true, labelText: 'Name')),
-              TextFormField(
-                  controller: _descriptionController,
-                  decoration:
-                      InputDecoration(filled: true, labelText: 'Description')),
+              TextFormField(controller: _nameController, decoration: InputDecoration(filled: true, labelText: 'Name')),
+              TextFormField(controller: _descriptionController, decoration: InputDecoration(filled: true, labelText: 'Description')),
               ElevatedButton(onPressed: _saveTodo, child: Text('Save'))
             ],
           ),
