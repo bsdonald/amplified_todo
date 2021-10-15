@@ -1,5 +1,5 @@
-import 'package:amplified_todo/pages/add_todo_form/add_todo_form.dart';
-import 'package:amplified_todo/pages/todos_page/widgets/todos_page_body.dart';
+import 'package:amplified_todo/presentation/pages/add_todo_form/add_todo_form.dart';
+import 'package:amplified_todo/presentation/pages/todos_page/widgets/todos_page_body.dart';
 import 'package:flutter/material.dart';
 
 class TodosPage extends StatelessWidget {

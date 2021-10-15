@@ -1,4 +1,4 @@
-import 'package:amplified_todo/pages/todos_page/todos_page.dart';
+import 'package:amplified_todo/presentation/pages/todos_page/todos_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {

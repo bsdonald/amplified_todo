@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:amplified_todo/amplifyconfiguration.dart';
 import 'package:amplified_todo/models/ModelProvider.dart';
-import 'package:amplified_todo/pages/todos_page/widgets/todos_list.dart';
+import 'package:amplified_todo/presentation/pages/todos_page/widgets/todos_list.dart';
 import 'package:amplify_api/amplify_api.dart';
 import 'package:amplify_auth_cognito/amplify_auth_cognito.dart';
 import 'package:amplify_datastore/amplify_datastore.dart';

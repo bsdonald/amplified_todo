@@ -1,5 +1,5 @@
 import 'package:amplified_todo/models/ModelProvider.dart';
-import 'package:amplified_todo/pages/todos_page/widgets/todo_item.dart';
+import 'package:amplified_todo/presentation/pages/todos_page/widgets/todo_item.dart';
 import 'package:flutter/material.dart';
 
 class TodosList extends StatelessWidget {
