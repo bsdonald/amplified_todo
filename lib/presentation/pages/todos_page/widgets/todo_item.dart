@@ -1,4 +1,4 @@
-import 'package:amplified_todo/models/ModelProvider.dart';
+import 'package:amplified_todo/domain/models/ModelProvider.dart';
 import 'package:amplify_flutter/amplify.dart';
 import 'package:flutter/material.dart';
 
